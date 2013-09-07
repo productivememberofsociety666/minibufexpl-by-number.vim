@@ -1,3 +1,31 @@
+# Notes On The Fork Of The Fork
+Just install the plugin as usual, then put this into your `.vimrc`:
+
+    nmap <S-Tab> :<C-U>MBECustomFocus(v:count)<CR>
+    let g:miniBufExplCloseOnSelect = 1
+
+You can leave out the second line if you want the MiniBufExpl bar to be
+visible at all times.
+
+When you're done, you can use the plugin as follows:
+
+* `Shift`+`Tab`: Toggle MiniBufExpl bar visibility or focus (depending on
+`g:minibufExplCloseOnSelect`)
+* \[count\] `Shift`+`Tab`: Switch to buffer with the number \[count\]
+
+Inside the MiniBufExpl bar, you can use the number keys to select a buffer by
+typing in the target number's individual digits. To reset the number and start
+over, press `Tab`. To select the buffer, press `Shift`+`Tab` or `Enter`.
+
+I like this a lot better than the more commonly taken approach of "press
+\[modifier]+\[single\_digit\] to switch buffers, if you have more than 9
+you're out of luck".
+
+Note that you can also use the "old" keybindings (and options, provided they
+still work) from fholgado's version.
+
+Original notes that came with the fork from which I forked this fork follow:
+
 # MiniBufExpl
 
 This is a fork of [Bindu Wavell][]'s [MiniBufExpl][] plugin for [Vim][].
