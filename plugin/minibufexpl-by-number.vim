@@ -2317,6 +2317,45 @@ function! <SID>MBESelectBufferKeepFocus(split)
   call <SID>DEBUG('Leaving MBESelectBuffer()',10)
 endfunction
 
+" Still custom
+function! <SID>MBESelectBufferByNum(number, split)
+  call <SID>DEBUG('Entering MBESelectBufferByNum()',10)
+
+  let l:bufnr  = a:number
+
+  if(l:bufnr != -1)             " If the buffer exists.
+    let l:saveAutoUpdate = t:miniBufExplAutoUpdate
+    let t:miniBufExplAutoUpdate = 0
+
+    call s:SwitchWindow('p',1)
+
+    if <SID>IsBufferIgnored(bufnr('%'))
+      let l:winNum = <SID>NextNormalWindow()
+      if l:winNum != -1
+        call s:SwitchWindow('w',1,l:winNum)
+      else
+        call <SID>DEBUG('No elegible window avaliable',1)
+        call <SID>DEBUG('Leaving MBESelectBufferByNum()',10)
+        return
+      endif
+    endif
+
+    if a:split == 0
+	    exec 'b! '.l:bufnr
+    elseif a:split == 1
+	    exec 'sb! '.l:bufnr
+    elseif a:split == 2
+	    exec 'vertical sb! '.l:bufnr
+    endif
+
+    let t:miniBufExplAutoUpdate = l:saveAutoUpdate
+
+    call <SID>AutoUpdate(bufnr("%"),0)
+  endif
+
+  call <SID>DEBUG('Leaving MBESelectBufferByNum()',10)
+endfunction
+
 " }}}
 " MBEDeleteBuffer - From the MBE window, delete selected buffer from list {{{
 "
@@ -2555,16 +2594,16 @@ endfunction
 
 " Custom
 function <SID>MBECustomFocus(count)
-  if g:miniBufExplCloseOnSelect == 1
-    MBEOpen
-  endif
   if count == 0
-    call <SID>FocusExplorer()
+      if g:miniBufExplCloseOnSelect == 1
+        MBEOpen
+      endif
+      call <SID>FocusExplorer()
   else
-    call <SID>FocusExplorer()
-    let s:numbersTyped = "".count
-    call <SID>MBECustomAddNum("")
-    call <SID>MBESelectBuffer(0)
+    call <SID>MBESelectBufferByNum(a:count, 0)
+    if g:miniBufExplCloseOnSelect == 1
+      MBEClose
+    endif
   endif
 endfunction
 
