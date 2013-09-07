@@ -5,7 +5,8 @@ Just install the plugin as usual, then put this into your `.vimrc`:
     let g:miniBufExplCloseOnSelect = 1
 
 You can leave out the second line if you want the MiniBufExpl bar to be
-visible at all times.
+visible at all times, but then you should probably have
+`let g:miniBufExplBuffersNeeded = 1` in there as well.
 
 When you're done, you can use the plugin as follows:
 
