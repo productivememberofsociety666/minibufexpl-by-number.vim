@@ -2412,6 +2412,12 @@ function! <SID>MBEDeleteBufferKeepFocus()
   " Get active buffer
   let l:actBuf = <SID>GetActiveBuffer()
 
+  " Get window number of selected buffer
+  let l:selWinNr = bufwinnr(l:selBuf)
+
+  " Get active window
+  let l:actWinNr = bufwinnr(l:actBuf)
+
   if l:selBuf != -1
     call <SID>DeleteBuffer(0,0,l:selBuf)
   endif
@@ -2425,7 +2431,19 @@ function! <SID>MBEDeleteBufferKeepFocus()
   " to a near buffer
   if l:selBuf == l:actBuf
     call <SID>MBESelectBufferKeepFocus(0)
+  " Even if it wasn't THE active buffer, it might have been one of the active
+  " buffers:
+  elseif l:selWinNr != -1
+    let l:mbeWinNr = <SID>FindWindow('-MiniBufExplorer-', 1)
+    exe l:selWinNr . 'wincmd w'
+    exe l:mbeWinNr . 'wincmd w'
+    call <SID>MBESelectBufferKeepFocus(0)
+    exe l:actWinNr . 'wincmd w'
+    exe l:mbeWinNr . 'wincmd w'
+    call search('\['.l:nearBuf.':[^\]]*\]')
   endif
+
+
   
   call <SID>DEBUG('Leaving MBEDeleteBufferKeepFocus()',10)
 endfunction
