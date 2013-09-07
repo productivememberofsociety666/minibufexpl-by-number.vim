@@ -99,6 +99,12 @@ endif
 if !exists(':MBEbun')
   command! -bang -nargs=* MBEbun call <SID>DeleteBuffer(2,'<bang>'=='!',<f-args>)
 endif
+" Custom
+" Put this into your .vimrc in order for this to work:
+" noremap <S-Tab> :<C-U>MBECustomFocus(v:count)<CR>
+if !exists(':MBECustomFocus')
+  command! -nargs=1 MBECustomFocus call <SID>MBECustomFocus(<args>)
+endif
 
 " }}}
 "
@@ -370,6 +376,9 @@ let t:skipEligibleBuffersCheck = 0
 
 " The order of buffer listing in MBE window is tab dependently.
 let t:miniBufExplSortBy = g:miniBufExplSortBy
+
+" Custom : variable for buffer selection via number keys
+let s:numbersTyped = ""
 
 " }}}
 "
@@ -690,6 +699,19 @@ function! <SID>StartExplorer(curBufNum)
     nnoremap <buffer> <right> :call search('\[[0-9]*:[^\]]*\]')<CR>:<BS>
     nnoremap <buffer> <left>  :call search('\[[0-9]*:[^\]]*\]','b')<CR>:<BS>
   endif
+
+  " Custom
+  noremap <buffer> 1 :call <SID>MBECustomAddNum("1")<CR>:<BS>
+  noremap <buffer> 2 :call <SID>MBECustomAddNum("2")<CR>:<BS>
+  noremap <buffer> 3 :call <SID>MBECustomAddNum("3")<CR>:<BS>
+  noremap <buffer> 4 :call <SID>MBECustomAddNum("4")<CR>:<BS>
+  noremap <buffer> 5 :call <SID>MBECustomAddNum("5")<CR>:<BS>
+  noremap <buffer> 6 :call <SID>MBECustomAddNum("6")<CR>:<BS>
+  noremap <buffer> 7 :call <SID>MBECustomAddNum("7")<CR>:<BS>
+  noremap <buffer> 8 :call <SID>MBECustomAddNum("8")<CR>:<BS>
+  noremap <buffer> 9 :call <SID>MBECustomAddNum("9")<CR>:<BS>
+  noremap <buffer> 0 :call <SID>MBECustomAddNum("0")<CR>:<BS>
+  noremap <buffer> <Esc> :call <SID>MBECustomResetNum()<CR>:<BS>
 
   " Attempt to perform single click mapping
   " It would be much nicer if we could 'nnoremap <buffer> ...', however
@@ -2236,6 +2258,62 @@ function! <SID>MBESelectBuffer(split)
     call <SID>StopExplorer(0)
   endif
 
+  " Custom
+  call <SID>MBECustomResetNum()
+
+  call <SID>DEBUG('Leaving MBESelectBuffer()',10)
+endfunction
+
+" Custom
+function! <SID>MBESelectBufferKeepFocus(split)
+  call <SID>DEBUG('Entering MBESelectBuffer()',10)
+
+  " Make sure we are in our window
+  if bufname('%') != '-MiniBufExplorer-'
+    call <SID>DEBUG('MBESelectBuffer called in invalid window',1)
+    call <SID>DEBUG('Leaving MBESelectBuffer()',10)
+    return
+  endif
+
+  let l:bufnr  = <SID>GetSelectedBuffer()
+
+  if(l:bufnr != -1)             " If the buffer exists.
+    let l:saveAutoUpdate = t:miniBufExplAutoUpdate
+    let t:miniBufExplAutoUpdate = 0
+
+    call s:SwitchWindow('p',1)
+
+    if <SID>IsBufferIgnored(bufnr('%'))
+      let l:winNum = <SID>NextNormalWindow()
+      if l:winNum != -1
+        call s:SwitchWindow('w',1,l:winNum)
+      else
+        call <SID>DEBUG('No elegible window avaliable',1)
+        call <SID>DEBUG('Leaving MBESelectBuffer()',10)
+        return
+      endif
+    endif
+
+    if a:split == 0
+	    exec 'b! '.l:bufnr
+    elseif a:split == 1
+	    exec 'sb! '.l:bufnr
+    elseif a:split == 2
+	    exec 'vertical sb! '.l:bufnr
+    endif
+
+    let t:miniBufExplAutoUpdate = l:saveAutoUpdate
+
+    call <SID>AutoUpdate(bufnr("%"),0)
+  endif
+
+  "if g:miniBufExplCloseOnSelect == 1
+    "call <SID>StopExplorer(0)
+  "endif
+
+  " Custom
+  call <SID>FocusExplorer()
+
   call <SID>DEBUG('Leaving MBESelectBuffer()',10)
 endfunction
 
@@ -2463,5 +2541,32 @@ function! s:SwitchWindow(action, ...)
 endfunction
 
 " }}}
+
+" Custom
+function <SID>MBECustomAddNum(num_str)
+  let s:numbersTyped .= a:num_str
+  call search('\['.s:numbersTyped.':[^\]]*\]', 'w')
+  call <SID>MBESelectBufferKeepFocus(0)
+endfunction
+
+function <SID>MBECustomResetNum()
+  let s:numbersTyped = ""
+endfunction
+
+" Custom
+function <SID>MBECustomFocus(count)
+  if g:miniBufExplCloseOnSelect == 1
+    MBEOpen
+  endif
+  if count == 0
+    call <SID>FocusExplorer()
+  else
+    call <SID>FocusExplorer()
+    let s:numbersTyped = "".count
+    call <SID>MBECustomAddNum("")
+    call <SID>MBESelectBuffer(0)
+  endif
+endfunction
+
 
 " vim:ft=vim:fdm=marker:ff=unix:nowrap:tabstop=2:shiftwidth=2:softtabstop=2:smarttab:shiftround:expandtab
