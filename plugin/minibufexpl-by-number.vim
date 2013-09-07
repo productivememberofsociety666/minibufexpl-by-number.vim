@@ -670,6 +670,9 @@ function! <SID>StartExplorer(curBufNum)
   nnoremap <buffer> o       :call <SID>MBESelectBuffer(0)<CR>:<BS>
   nnoremap <buffer> e       :call <SID>MBESelectBuffer(0)<CR>:<BS>
   nnoremap <buffer> <CR>    :call <SID>MBESelectBuffer(0)<CR>:<BS>
+  " Custom
+  " Doesn't work for some reason (???????)
+  nnoremap <buffer> <S-Tab> :call <SID>MBESelectBuffer(0)<CR>:<BS>
   " If you press s in the -MiniBufExplorer- then try
   " to open the selected buffer in a split in the previous window.
   nnoremap <buffer> s       :call <SID>MBESelectBuffer(1)<CR>:<BS>
@@ -2594,6 +2597,10 @@ endfunction
 
 " Custom
 function <SID>MBECustomFocus(count)
+  if bufname('%') == '-MiniBufExplorer-'
+    call <SID>MBESelectBuffer(0)
+    return
+  endif
   if count == 0
       if g:miniBufExplCloseOnSelect == 1
         MBEOpen
