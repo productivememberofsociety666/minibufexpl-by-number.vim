@@ -714,7 +714,7 @@ function! <SID>StartExplorer(curBufNum)
   noremap <buffer> 8 :call <SID>MBECustomAddNum("8")<CR>:<BS>
   noremap <buffer> 9 :call <SID>MBECustomAddNum("9")<CR>:<BS>
   noremap <buffer> 0 :call <SID>MBECustomAddNum("0")<CR>:<BS>
-  noremap <buffer> <Esc> :call <SID>MBECustomResetNum()<CR>:<BS>
+  noremap <buffer> <Esc><Esc> :call <SID>MBECustomResetNum()<CR>:<BS>
 
   " Attempt to perform single click mapping
   " It would be much nicer if we could 'nnoremap <buffer> ...', however
