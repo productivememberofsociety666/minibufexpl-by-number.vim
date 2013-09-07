@@ -761,6 +761,7 @@ function! <SID>StopExplorer(force)
   call <SID>DEBUG('Entering StopExplorer()',10)
 
   if a:force || <SID>HasEligibleBuffers()
+    call <SID>DEBUG("Disabling t:miniBufExplAutoUpdate",1)
     let t:miniBufExplAutoUpdate = 0
   endif
 
@@ -2258,7 +2259,7 @@ function! <SID>MBESelectBuffer(split)
   endif
 
   if g:miniBufExplCloseOnSelect == 1
-    call <SID>StopExplorer(0)
+    call <SID>StopExplorer(1) " 1 because otherwise it won't work with 1 buf
   endif
 
   " Custom
