@@ -681,7 +681,7 @@ function! <SID>StartExplorer(curBufNum)
   nnoremap <buffer> v       :call <SID>MBESelectBuffer(2)<CR>:<BS>
   " If you press d in the -MiniBufExplorer- then try to
   " delete the selected buffer.
-  nnoremap <buffer> d       :call <SID>MBEDeleteBuffer()<CR>:<BS>
+  nnoremap <buffer> d       :call <SID>MBEDeleteBufferKeepFocus()<CR>:<BS>
   " The following allow us to use regular movement keys to
   " scroll in a wrapped single line buffer
   nnoremap <buffer> k       gk
@@ -2155,7 +2155,7 @@ endfunction
 "
 function! <SID>GetActiveBuffer()
   call <SID>DEBUG('Entering GetActiveBuffer()',10)
-  let l:bufNum = substitute(s:miniBufExplBufList,'\[\([0-9]*\):[^\]]*\][^\!]*!', '\1', '') + 0
+  let l:bufNum = substitute(s:miniBufExplBufList,'.*\[\([0-9]*\):[^\]]*\][^!]*!.*', '\1', '') + 0
   call <SID>DEBUG('Currently active buffer is '.l:bufNum,10)
   call <SID>DEBUG('Leaving GetActiveBuffer()',10)
   return l:bufNum
@@ -2385,6 +2385,49 @@ function! <SID>MBEDeleteBuffer()
   endif
 
   call <SID>DEBUG('Leaving MBEDeleteBuffer()',10)
+endfunction
+
+" Custom
+function! <SID>MBEDeleteBufferKeepFocus()
+  call <SID>DEBUG('Entering MBEDeleteBufferKeepFocus()',10)
+
+  " Make sure we are in our window
+  if bufname('%') != '-MiniBufExplorer-'
+    call <SID>DEBUG('MBEDeleteBufferKeepFocus called in invalid window',1)
+    call <SID>DEBUG('Leaving MBEDeleteBufferKeepFocus()',10)
+    return
+  endif
+
+  let l:selBuf = <SID>GetSelectedBuffer()
+
+  " Get surrounding buffer also
+  call search('\[[0-9]*:[^\]]*\]')
+  let l:nearBuf = <SID>GetSelectedBuffer()
+  if l:nearBuf == -1 || l:nearBuf == l:selBuf || l:nearBuf < l:selBuf
+    call search('\[[0-9]*:[^\]]*\]', 'b')
+    call search('\[[0-9]*:[^\]]*\]', 'b')
+    let l:nearBuf = <SID>GetSelectedBuffer()
+  endif
+
+  " Get active buffer
+  let l:actBuf = <SID>GetActiveBuffer()
+
+  if l:selBuf != -1
+    call <SID>DeleteBuffer(0,0,l:selBuf)
+  endif
+
+  call <SID>FocusExplorer()
+  call search('\['.l:nearBuf.':[^\]]*\]')
+
+  call <SID>MBECustomResetNum()
+
+  " If we just deleted the active buffer, we also have to set that one
+  " to a near buffer
+  if l:selBuf == l:actBuf
+    call <SID>MBESelectBufferKeepFocus(0)
+  endif
+  
+  call <SID>DEBUG('Leaving MBEDeleteBufferKeepFocus()',10)
 endfunction
 
 " }}}
