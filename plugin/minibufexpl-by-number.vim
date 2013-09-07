@@ -671,7 +671,7 @@ function! <SID>StartExplorer(curBufNum)
   nnoremap <buffer> e       :call <SID>MBESelectBuffer(0)<CR>:<BS>
   nnoremap <buffer> <CR>    :call <SID>MBESelectBuffer(0)<CR>:<BS>
   " Custom
-  " Doesn't work for some reason (???????)
+  " Doesn't work with <Esc> mapping...
   nnoremap <buffer> <S-Tab> :call <SID>MBESelectBuffer(0)<CR>:<BS>
   " If you press s in the -MiniBufExplorer- then try
   " to open the selected buffer in a split in the previous window.
